@@ -1,0 +1,280 @@
+{% extends 'base.html' %} {% load static %} {% block content %}
+<section class="py-5">
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col-lg-6">
+                <!-- PRODUCT SLIDER -->
+                <div class="thumbs-wrap"></div>
+                <div class="row m-sm-0">
+                    <div class="col-sm-12 order-1 order-sm-2">
+                        <!-- PRODUCT IMAGES -->
+                        <div class="owl-carousel product-slider">
+                            {% for image in product.images.all %}
+                            <div class="item">
+                                <a class="d-block" href="{{ image.image.url }}" data-lightbox="product" title="{{ product.title }}">
+                                    <img class="img-fluid{% if forloop.first %} active{% endif %}" src="{{ image.image.url }}" alt="{{ product.title }}" data-image="{{ image.color.title }}" data-index="{{ forloop.counter0 }}">
+                                </a>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- PRODUCT DETAILS -->
+            <div class="col-lg-6">
+                <h1>{{ product.title }}</h1>
+                <p class="text-muted lead">Rs. {{ product.price }}</p>
+                <p class="text-small mb-4">{{ product.short_description }}</p>
+
+                <!-- QUANTITY AND ADD TO CART -->
+                <div class="row align-items-stretch mb-4">
+                    <div class="col-sm-5 pr-sm-0">
+                        <div class="border d-flex align-items-center justify-content-between py-1 px-3 bg-white border-white">
+                            <span class="small text-uppercase text-gray mr-4 no-select">Quantity</span>
+                            <div class="quantity">
+                                <button class="dec-btn p-0"><i class="fas fa-caret-left"></i></button>
+                                <input name="quantity" class="form-control border-0 shadow-0 p-0" id="quantity_input" type="text" value="1">
+                                <button class="inc-btn p-0"><i class="fas fa-caret-right"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3 pl-sm-0">
+                        <!-- ADD TO CART FORM -->
+                        <form action="{% url 'store:add-to-cart' %}" id="add_to_cart_form">
+                            <input type="hidden" name="prod_id" value="{{ product.id }}" id="product_id">
+                            <button type="submit" class="btn btn-dark btn-lg btn-block h-100 d-flex align-items-center justify-content-center px-0">Add to Cart</button>
+                        </form>
+
+                    </div>
+                </div>
+
+                <!-- SELECT SIZE AND COLOR -->
+                <style>
+                    /* Custom CSS for size buttons */
+                    /* ... */
+                    /* Custom CSS for circular buttons */
+                    /* ... */
+                </style>
+
+                <ul class="list-unstyled small d-inline-block ">
+                    <!-- SELECT SIZE BUTTONS -->
+                    <div class="form-group col-md ">
+                        <li class="px-3 py-2 mb-1 bg-white "><strong class="text-uppercase ">Select Size</strong></li>
+                        <div class="mt-1 ">
+                            <div class="choose-size ">
+                                {% for size in product.size.all %}
+                                <button class="btn btn-outline-secondary btn-sm choose-size" name="selected_size" data-size="{{ size.title }}" value="{{ size.title }}">{{ size.title }}</button> {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SELECT COLOR BUTTONS -->
+                    <div class="form-group col-md ">
+                        <li class="px-3 py-2 mb-1 bg-white "><strong class="text-uppercase ">Select Color</strong></li>
+                        <div class="mt-1 ">
+                            <div class="choose-color ">
+                                {% for color in product.color.all %}
+                                <button class="btn btn-lg color-button " name="selected_color " data-color="{{ color.title }}" style="background-color: {{ color.color_code }}; ">
+                                        {{ color.title }}
+                                    </button> {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <!-- PRODUCT DETAILS -->
+                    <ul class="list-unstyled small d-inline-block ">
+                        <li class="px-3 py-2 mb-1 bg-white "><strong class="text-uppercase ">SKU:</strong><span class="ml-2 text-muted ">{{ product.sku }}</span></li>
+                        <li class="px-3 py-2 mb-1 bg-white text-muted "><strong class="text-uppercase text-dark ">Category:</strong><a class="reset-anchor ml-2 " href="{% url 'store:category-products' product.category.slug %} ">
+                             {{ product.category.title }} </a></li>
+                        <li class="px-3 py-2 mb-1 bg-white text-muted "><strong class="text-uppercase text-dark ">Tags:</strong><a class="reset-anchor ml-2 " href="# ">Innovation</a></li>
+                    </ul>
+                </ul>
+            </div>
+        </div>
+
+        <!-- DETAILS TABS -->
+        <ul class="nav nav-tabs border-0 " id="myTab " role="tablist ">
+            <li class="nav-item ">
+                <a class="nav-link active " id="description-tab " data-toggle="tab " href="#description " role="tab " aria-controls="description " aria-selected="true ">Description</a>
+            </li>
+        </ul>
+
+        <!-- PRODUCT DESCRIPTION -->
+        <div class="tab-content mb-5 " id="myTabContent ">
+            <div class="tab-pane fade show active " id="description " role="tabpanel " aria-labelledby="description-tab ">
+                <div class="p-4 p-lg-5 bg-white ">
+                    <h6 class="text-uppercase ">Product description</h6>
+                    <p class="text-muted text-small mb-0 ">{{ product.detail_description }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- RELATED PRODUCTS -->
+        <h2 class="h5 text-uppercase mb-4 ">Related products</h2>
+        <div class="row ">
+            {% if related_products %} {% for rp in related_products %}
+            <div class="col-lg-3 col-sm-6 ">
+                <!-- RELATED PRODUCT -->
+                <div class="product text-center skel-loader ">
+                    <div class="d-block mb-3 position-relative ">
+                        <a class="d-block " href="{% url 'store:product-detail' rp.slug %} ">
+              {% if rp.product_image %}
+              <img class="img-fluid w-100 " src="{{ rp.product_image.url }} " alt="{{ rp.title }} ">
+              {% else %}
+              <img class="img-fluid w-100 " src="{% static 'img/product-1.jpg' %} " alt="{{ rp.title }} ">
+              {% endif %}
+            </a>
+                        <div class="product-overlay ">
+                            <ul class="mb-0 list-inline ">
+                                <li class="list-inline-item m-0 p-0 "><a class="btn btn-sm btn-outline-dark " href="# "><i
+                      class="far fa-heart "></i></a></li>
+                                <li class="list-inline-item m-0 p-0 "><a class="btn btn-sm btn-dark " href="{% url 'store:add-to-cart' %} ">Add to cart</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <h6><a class="reset-anchor " href="{% url 'store:product-detail' rp.slug %} ">{{ rp.title }}</a></h6>
+                    <p class="small text-muted ">Rs. {{ rp.price }}</p>
+                </div>
+            </div>
+            {% endfor %} {% endif %}
+        </div>
+    </div>
+</section>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js "></script>
+
+<script>
+    function showImageByColor(color) {
+        // Remove 'active' class from all images
+        $('.product-slider img').removeClass('active');
+
+        // Find the index of the slide with the corresponding color
+        const slideIndex = $('.product-slider .owl-item img[data-image="' + color + '"]').data('index');
+        console.log(slideIndex);
+
+        if (slideIndex !== undefined) {
+            // Slide to the corresponding image with a smooth transition
+            $('.product-slider').trigger('to.owl.carousel', [slideIndex, 300]);
+
+            // Add 'active' class to the corresponding image
+            $('.product-slider .owl-item').eq(slideIndex).find('img').addClass('active');
+        }
+    }
+
+
+
+    $(document).ready(function() {
+        let selectedSize = null;
+        let selectedColor = null;
+        let selectedQuantity = null;
+
+        // Initialize Owl Carousel
+        $('.product-slider').owlCarousel({
+            items: 1,
+            loop: true,
+            margin: 10,
+            dots: true,
+            nav: true,
+        });
+
+        // Add 'active' class to the first color button
+        $('.choose-color button:first-child').addClass('active');
+        $('.choose-color button').click(function() {
+
+            // Remove 'active' class from all color buttons
+            $('.choose-color button').removeClass('active');
+
+            // Add 'active' class to the clicked color button
+            $(this).addClass('active');
+
+            // Handle other actions if needed...
+            var selectColor = $(this).data('color');
+            selectedColor = selectColor;
+
+            showImageByColor(selectedColor);
+
+        });
+
+
+
+        $('.choose-size button').click(function() {
+            // Remove 'active' class from all size buttons
+            $('.choose-size button').removeClass('active');
+
+            // Add 'active' class to the clicked size button
+            $(this).addClass('active');
+
+            // Log the selected size immediately upon clicking
+            selectedSize = $(this).val();
+            console.log('Selected Size:', selectedSize);
+
+            // Additional actions or functions can be added here
+        });
+
+        // Add input event handler to the quantity input field
+        $('#quantity_input').on('input', function() {
+            updateQuantity($(this).val(), 0);
+        });
+
+        // Add click event handlers to the increment and decrement buttons
+        $('.dec-btn').on('click', function() {
+            updateQuantity($('#quantity_input').val(), -1);
+        });
+
+        $('.inc-btn').on('click', function() {
+            updateQuantity($('#quantity_input').val(), 1);
+        });
+
+        function updateQuantity(input, change) {
+            //1 is valid quantity if input is empty
+            if (input === '' || input === null || input === undefined) {
+                input = 1;
+            }
+
+            var changedQuantity = parseInt(input) + change;
+            // Ensure the quantity is not negative
+            selectedQuantity = Math.max(changedQuantity, 1);
+
+
+
+            // Log the updated quantity
+            console.log('Updated Quantity:', selectedQuantity);
+
+            // Additional actions or functions can be added here
+        }
+
+
+        $('#add_to_cart_form').on('submit', function(event) {
+            event.preventDefault();
+
+            // Log the selected size, color, and quantity
+            console.log('Selected Size cart:', selectedSize);
+            console.log('Selected Color cart:', selectedColor);
+            console.log('Quantity cart:', selectedQuantity);
+
+            // Get the product ID
+            const productId = $('#product_id').val();
+            console.log('Product ID:', productId);
+
+            // Construct the URL for redirecting to the add-to-cart endpoint
+            let url = "{% url 'store:add-to-cart' %}?prod_id=" + encodeURIComponent(productId) + "&quantity=" + encodeURIComponent(selectedQuantity);
+
+            if (selectedSize) {
+                url += "&selected_size=" + encodeURIComponent(selectedSize);
+            }
+            if (selectedColor) {
+                url += "&selected_color=" + encodeURIComponent(selectedColor);
+            }
+
+            // Redirect to the add-to-cart URL
+            window.location.href = url;
+        });
+
+
+    });
+</script>
+{% endblock content %}
+<!-- Custom scripts for this page -->
